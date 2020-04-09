@@ -14,17 +14,19 @@ RUN DEBIAN_FRONTEND=noninteractive \
 # Download and install OTS version 0.10.x
 RUN set -ex && \
   mkdir -p /etc/onetime /var/log/onetime /var/run/onetime /var/lib/onetime && \
-  wget https://codeload.github.com/onetimesecret/onetimesecret/legacy.tar.gz/0.10 -O /tmp/ots.tar.gz && \
-  tar xzf /tmp/ots.tar.gz -C /var/lib/onetime --strip-components=1 && \
-  rm /tmp/ots.tar.gz && \
+  wget https://github.com/onetimesecret/onetimesecret/archive/master.zip -O /tmp/ots.zip && \
+  cd /tmp && unzip /tmp/ots.zip && \
+  mv -fv /tmp/onetimesecret-master/* /var/lib/onetime/ && \
+  rm -fr /tmp/ots.zip /tmp/onetimesecret-master && \
   cd /var/lib/onetime && \
+  bundle update --bundler && \
   bundle install --frozen --deployment --without=dev && \
   cp -R etc/* /etc/onetime/
 
 ADD entrypoint.sh /usr/bin/
 
 # Add default config
-ADD config.example /etc/onetime/config
+ADD config /etc/onetime/config
 
 VOLUME /etc/onetime /var/run/redis
 
